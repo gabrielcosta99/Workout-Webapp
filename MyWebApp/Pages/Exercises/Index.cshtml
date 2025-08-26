@@ -1,0 +1,337 @@
+﻿@page
+@model MyWebApp.Pages.Exercises.IndexModel
+@{
+    ViewData["Title"] = "Manage Exercises";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-dumbbell me-2 text-primary" aria-hidden="true"></i>
+                    Exercises
+                </h1>
+                <a asp-page="/Exercises/Create" class="btn btn-primary">
+                    <i class="fas fa-plus me-1" aria-hidden="true"></i>Create New Exercise
+                </a>
+            </div>
+            @if (TempData["SuccessMessage"] is string successMessage)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2" aria-hidden="true"></i>@successMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (Model.Exercises?.Any() ?? false)
+            {
+                <div class="row g-4">
+                    @foreach (var exercise in Model.Exercises)
+                    {
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="card h-100 exercise-card">
+                                <div class="card-header bg-light">
+                                    <h5 class="card-title mb-0">@exercise.Name</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-3">
+                                        <li>
+                                            <i class="fas fa-check text-success me-1"></i>
+                                            Max weight: <span class="max-weight">@(@exercise.MaxWeight ?? 0)</span> kg
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-check text-success me-1"></i>
+                                            Max reps: <span class="max-reps">@(@exercise.MaxReps ?? 0)</span>
+                                        </li>
+                                        
+                                    </ul>
+                                    <div class="btn-group w-100" role="group">
+                                        <button class="btn btn-outline-primary quick-edit-btn"
+                                                data-exercise-id="@exercise.Id"
+                                                data-exercise-name="@exercise.Name"
+                                                data-exercise-maxreps="@(@exercise.MaxReps ?? 0)"
+                                                data-exercise-maxweight="@(@exercise.MaxWeight ?? 0)"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#quickEditModal">
+                                            <i class="fas fa-edit me-1"></i>Quick Edit
+                                        </button>
+                                        <button class="btn btn-outline-danger delete-btn"
+                                                data-exercise-id="@exercise.Id"
+                                                data-exercise-name="@exercise.Name"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal">
+                                            <i class="fas fa-trash me-1"></i> Delete
+                                        </button>
+                                        @* <a asp-page="/Exercises/Edit" asp-route-id="@exercise.Id" class="btn btn-outline-secondary">
+                                            <i class="fas fa-cog me-1"></i>Full Edit
+                                        </a> *@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-dumbbell fa-3x text-muted mb-3" aria-hidden="true"></i>
+                    <h3 class="text-muted">No exercises yet</h3>
+                    <a asp-page="/Exercises/Create" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Create Your First Exercise
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<!-- Quick Edit Modal -->
+<div class="modal fade" id="quickEditModal" tabindex="-1" aria-labelledby="quickEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quickEditModalLabel">Quick Edit Exercise</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="quickEditForm">
+                <div class="modal-body">
+                    <input type="hidden" id="exerciseId">
+                    <div class="mb-3">
+                        <label for="exerciseName" class="form-label">Exercise Name</label>
+                        <input type="text" class="form-control" id="exerciseName" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="maxWeight" class="form-label">Max Weight (kg)</label>
+                                <input type="number" class="form-control" id="maxWeight" min="0" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="maxReps" class="form-label">Max Reps</label>
+                                <input type="number" class="form-control" id="maxReps" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Exercise</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this exercise? This action cannot be undone.</p>
+                <p class="fw-bold" id="exerciseNameToDelete"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .exercise-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid #e9ecef;
+    }
+
+        .exercise-card:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
+        }
+</style>
+
+<script>
+        // ============== DELETE FUNCTIONALITY ==============
+        let exerciseToDelete = null;
+
+        // Handle delete button clicks
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                exerciseToDelete = {
+                    id: this.dataset.exerciseId,
+                    name: this.dataset.exerciseName,
+                    element: this.closest('.col-sm-6, .col-lg-4')
+                };
+
+                // Show exercise name in the modal
+                document.getElementById('exerciseNameToDelete').textContent = exerciseToDelete.name;
+            });
+        });
+
+        // Handle confirm delete
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            if (!exerciseToDelete) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('Id', exerciseToDelete.id);
+                formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                const response = await fetch('/Exercises?handler=DeleteExercise', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // Remove the exercise card from the DOM
+                    exerciseToDelete.element.remove();
+
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+
+                    // Show success message
+                    showMessage('Exercise deleted successfully!', 'success');
+
+                    // Check if no exercises remain
+                    const remainingExercises = document.querySelectorAll('.exercise-card');
+                    if (remainingExercises.length === 0) {
+                        location.reload(); // Simple way to show the "no exercises" state
+                    }
+                } else {
+                    showMessage('Error deleting exercise. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Error deleting exercise. Please try again.', 'error');
+            } finally {
+                exerciseToDelete = null;
+            }
+        });
+
+        // Reset when modal is hidden
+        document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function() {
+            exerciseToDelete = null;
+        });
+
+
+
+        // ----------------- Edit functionality
+        const quickEditModal = document.getElementById('quickEditModal');
+        const quickEditForm = document.getElementById('quickEditForm');
+
+        // Handle quick edit button clicks
+        document.querySelectorAll('.quick-edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const exerciseId = this.dataset.exerciseId;
+                const exerciseName = this.dataset.exerciseName;
+                const maxReps = this.dataset.exerciseMaxreps;
+                const maxWeight = this.dataset.exerciseMaxweight;
+
+                // Populate modal form
+                document.getElementById('exerciseId').value = exerciseId;
+                document.getElementById('exerciseName').value = exerciseName;
+                document.getElementById('maxReps').value = maxReps;
+                document.getElementById('maxWeight').value = maxWeight;
+            });
+        });
+
+        // Handle form submission
+        quickEditForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                id: parseInt(document.getElementById('exerciseId').value),
+                name: document.getElementById('exerciseName').value,
+                maxReps: parseInt(document.getElementById('maxReps').value) || 0,
+                maxWeight: parseFloat(document.getElementById('maxWeight').value) || 0
+            };
+
+            try {
+                const formDataToSend = new FormData();
+                formDataToSend.append('Id', formData.id);
+                formDataToSend.append('Name', formData.name);
+                formDataToSend.append('MaxReps', formData.maxReps);
+                formDataToSend.append('MaxWeight', formData.maxWeight);
+                formDataToSend.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                const response = await fetch('/Exercises?handler=UpdateExercise', {
+                    method: 'POST',
+                    body: formDataToSend
+                });
+
+                if (response.ok) {
+                    // Update the card display
+                    const exerciseCard = document.querySelector(`[data-exercise-id="${formData.id}"]`).closest('.exercise-card');
+                    const cardTitle = exerciseCard.querySelector('.card-title');
+                    const maxRepsSpan = exerciseCard.querySelector('.max-reps');
+                    const maxWeightSpan = exerciseCard.querySelector('.max-weight');
+
+                    cardTitle.textContent = formData.name;
+                    maxRepsSpan.textContent = formData.maxReps;
+                    maxWeightSpan.textContent = formData.maxWeight;
+
+                    // Update button data attributes
+                    const btn = exerciseCard.querySelector('.quick-edit-btn');
+                    btn.dataset.exerciseName = formData.name;
+                    btn.dataset.exerciseMaxreps = formData.maxReps;
+                    btn.dataset.exerciseMaxweight = formData.maxWeight;
+
+                    // Close modal
+                    bootstrap.Modal.getInstance(quickEditModal).hide();
+
+                    // Show success message
+                    showMessage('Exercise updated successfully!', 'success');
+                } else {
+                    showMessage('Error updating exercise. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Error updating exercise. Please try again.', 'error');
+            }
+        });
+
+    // Reset when modal is hidden
+    document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function() {
+        exerciseToDelete = null;
+    });
+
+    function showMessage(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+
+        const alert = document.createElement('div');
+        alert.className = `alert ${alertClass} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="fas ${icon} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        const container = document.querySelector('.container');
+        const firstChild = container.querySelector('.row');
+        container.insertBefore(alert, firstChild);
+
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+
+</script>
+
+@{
+    // Add CSRF token for AJAX requests
+}
+<form method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>

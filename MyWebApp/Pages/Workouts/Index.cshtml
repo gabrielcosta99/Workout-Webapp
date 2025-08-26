@@ -1,0 +1,502 @@
+﻿@page
+@model MyWebApp.Pages.Workouts.IndexModel
+@{
+    ViewData["Title"] = "Manage Workouts";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="fas fa-dumbbell me-2 text-primary"></i>My Workouts
+                </h1>
+                <a href="/Workouts/Create" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Create New Workout
+                </a>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (Model.Workouts.Any())
+            {
+                <div class="row">
+                    @foreach (var workout in Model.Workouts)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 workout-card">
+                                <div class="card-header bg-light">
+                                    <h5 class="card-title mb-0">@workout.Title</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-2">Exercises (@workout.WorkoutExercises.Count)</h6>
+                                    @if (workout.WorkoutExercises.Any())
+                                    {
+                                        <ul class="list-unstyled">
+                                            @foreach (var we in workout.WorkoutExercises.Take(3))
+                                            {
+                                                <li class="mb-1">
+                                                    <i class="fas fa-check text-success me-1"></i>@we.Exercise.Name
+                                                </li>
+                                            }
+                                            @if (workout.WorkoutExercises.Count > 3)
+                                            {
+                                                <li class="text-muted">
+                                                    <small>+@(workout.WorkoutExercises.Count - 3) more exercises</small>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No exercises added</p>
+                                    }
+                                </div>
+                                <div class="btn-group w-100" role="group">
+                                    <button class="btn btn-outline-primary quick-edit-btn"
+                                            data-workout-id="@workout.Id"
+                                            data-workout-title="@workout.Title"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#quickEditModal">
+                                        <i class="fas fa-edit me-1"></i>Quick Edit
+                                    </button>
+                                    <button class="btn btn-outline-danger delete-btn"
+                                            data-workout-id="@workout.Id"
+                                            data-workout-title="@workout.Title"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal">
+                                        <i class="fas fa-trash me-1"></i> Delete
+                                    </button>
+                                    @* <div class="btn-group w-100" role="group">
+                                        <a href="/Workouts/Details/@workout.Id" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
+                                        <a href="/Workouts/Edit/@workout.Id" class="btn btn-outline-secondary">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </a>
+                                    </div> *@
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-dumbbell fa-3x text-muted mb-3"></i>
+                    <h3 class="text-muted">No workouts yet</h3>
+                    <p class="text-muted mb-4">Create your first workout to get started with your fitness journey!</p>
+                    <a href="/Workouts/Create" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Create Your First Workout
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Quick Edit Modal -->
+<div class="modal fade" id="quickEditModal" tabindex="-1" aria-labelledby="quickEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quickEditModalLabel">Quick Edit Exercise</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editExercisesForm">
+                <div class="modal-body">
+                    <p class="fw-bold" id="modalWorkoutTitle"></p>
+                    <br />
+                    <!-- Dynamically load exercises here -->
+                    <div id="exercisesList">
+                        <!-- Content will be loaded via JavaScript or partial view -->
+                    </div>
+                    <button type="button"
+                            class="btn btn-primary d-flex align-items-center shadow-sm rounded-pill px-4 gap-2"
+                            id="addExerciseBtn">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Exercise</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Workout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this workout? This action cannot be undone.</p>
+                <p class="fw-bold" id="workoutTitleToDelete"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .workout-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+
+        .workout-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+</style>
+
+<script>
+
+    
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // ============== DELETE FUNCTIONALITY ==============
+        let workoutToDelete = null;
+
+        // Handle delete button clicks
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                workoutToDelete = {
+                    id: this.dataset.workoutId,
+                    name: this.dataset.workoutTitle,
+                    element: this.closest('.col-sm-6, .col-lg-4')
+                };
+
+                // Show exercise name in the modal
+                document.getElementById('workoutTitleToDelete').textContent = workoutToDelete.title;
+            });
+        });
+
+        // Handle confirm delete
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            if (!workoutToDelete) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('Id', workoutToDelete.id);
+                formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                const response = await fetch('/Workouts?handler=DeleteWorkout', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // Remove the workout card from the DOM
+                    workoutToDelete.element.remove();
+
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+
+                    // Show success message
+                    showMessage('Workout deleted successfully!', 'success');
+
+                    // Check if no workouts remain
+                    const remainingWorkouts = document.querySelectorAll('.workout-card');
+                    if (remainingWorkouts.length === 0) {
+                        location.reload(); // Simple way to show the "no workouts" state
+                    }
+                } else {
+                    showMessage('Error deleting workout. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Error deleting workout. Please try again.', 'error');
+            } finally {
+                workoutToDelete = null;
+            }
+        });
+
+        // Reset when modal is hidden
+        document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function() {
+            workoutToDelete = null;
+        });
+
+
+
+
+
+
+        // --------------- QUICK EDIT FUNCTIONALITY ---------------
+        let currentWorkoutId = null;
+        let allExercises = []; // Store all available exercises
+        const form = document.getElementById('editExercisesForm');
+        let formHandlerAttached = false;
+
+        function createExerciseDropdown(selectedId = "", label="Exercise", showRemoveBtn = false, isAddRow = false){
+            const options = allExercises.map(exercise => 
+                `<option value="${exercise.id}" ${exercise.id === selectedId ? 'selected' : ''}>${exercise.name}</option>`
+            ).join('');
+
+            const removeButton = showRemoveBtn ? 
+                `<button type="button" class="btn btn-outline-danger btn-sm remove-exercise-btn">
+                    X
+                </button>` : '';
+
+            const addRowClass = isAddRow ? 'add-exercise-row' : '';
+            return `<div class="mb-3 exercise-row ${addRowClass}">
+                <div class="d-flex align-items-end">
+                    <div class="flex-grow-1">
+                        <label class="form-label">${label}</label>
+                        <select class="form-select exercise-select">
+                            <option value="">'-- Select exercise --'</option>
+                            ${options}
+                        </select>
+                    </div>
+                    ${removeButton}
+                </div>
+            </div>`;
+        }
+
+        // Function to add a new "add exercise" row
+        const addExerciseBtn = document.getElementById('addExerciseBtn');
+        addExerciseBtn.addEventListener('click', function() {
+            console.log("here");
+            const exercisesList = document.getElementById('exercisesList');
+
+            const newRowHtml = createExerciseDropdown("", "Add New Exercise", false, true);
+            exercisesList.insertAdjacentHTML('beforeend', newRowHtml);
+            attachExerciseSelectListener(exercisesList.lastElementChild.querySelector('.exercise-select'));
+
+        });
+
+        // Function to attach change listener to exercise select
+        function attachExerciseSelectListener(select){
+            select.addEventListener('change', function(){
+                const isAddRow = this.closest('.add-exercise-row');
+
+                if(isAddRow && this.value !== ""){
+                    // Convert add row to regular exercise row
+                    const row = this.closest('.exercise-row');
+                    row.classList.remove("add-exercise-row");
+
+                    // Update label
+                    const label = row.querySelector('.form-label');
+                    label.textContent = "Exercise";
+                    const exerciseCount = document.querySelectorAll('.exercise-row:not(.add-exercise-row)').length;
+
+                    // Add remove button
+                    const buttonContainer = row.querySelector('.d-flex');
+                    buttonContainer.insertAdjacentHTML('beforeend', 
+                        `<button type="button" class="btn btn-outline-danger btn-sm remove-exercise-btn">
+                            X
+                        </button>`
+                    );
+
+                    const removeBtn = buttonContainer.querySelector('.remove-exercise-btn');
+                    attachRemoveListener(removeBtn);
+
+                    // Add new "add exercise" row
+                    // addNewExerciseRow();
+
+                }
+            })
+        }
+
+        // Function to attach remove listeners
+        function attachRemoveListener(button) {
+            button.addEventListener('click', function() {
+                this.closest('.exercise-row').remove();
+                updateExerciseLabels();
+
+                //addNewExerciseRow(); // Ensure there's always an "add exercise" row
+            });
+        }
+
+        // Function to update exercise labels
+        function updateExerciseLabels() {
+            const exerciseRows = document.querySelectorAll('.exercise-row:not(.add-exercise-row)');
+            exerciseRows.forEach((row, index) => {
+                const label = row.querySelector('.form-label');
+                label.textContent = `Exercise ${index + 1}`;
+            });
+        }
+
+        // Function to handle form submission
+        const handleFormSubmission = async function (e) {
+            e.preventDefault();
+
+            if (!currentWorkoutId) {
+                console.error('No workout ID available');
+                return;
+            }
+
+            const selectedExercises = Array.from(document.querySelectorAll('.exercise-select'))
+                .map(sel => sel.value)
+                .filter(v => v !== "");
+
+            console.log('Submitting workout:', currentWorkoutId, 'with exercises:', selectedExercises);
+
+            const formData = new FormData();
+            formData.append('id', currentWorkoutId);
+
+            // Add each exercise ID separately
+            selectedExercises.forEach(exerciseId => {
+                formData.append('ExerciseIds', exerciseId);
+            });
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            formData.append('__RequestVerificationToken', token);
+
+
+            try {
+                const response = await fetch('/Workouts?handler=UpdateExercises', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('quickEditModal'));
+                        if (modal) modal.hide();
+                        location.reload();
+                    } else {
+                        console.error('Server returned error:', result);
+                        alert('Error updating exercises. Please try again.');
+                    }
+                } else {
+                    console.error('HTTP error:', response.status, response.statusText);
+                    const errorText = await response.text();
+                    console.error('Error details:', errorText);
+                    alert('Network error. Please try again.');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                alert('Network error. Please try again.');
+            }
+        };
+
+        // Attach form handler only once
+        if (!formHandlerAttached) {
+            form.addEventListener('submit', handleFormSubmission);
+            formHandlerAttached = true;
+        }
+
+        // Handle quick edit button clicks
+        document.querySelectorAll('.quick-edit-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const workoutId = this.getAttribute('data-workout-id');
+                const workoutTitle = this.getAttribute('data-workout-title');
+
+                // Update current workout ID
+                currentWorkoutId = workoutId;
+
+                document.getElementById('modalWorkoutTitle').textContent = workoutTitle;
+
+                try {
+                    const workoutExercisesResponse = await fetch(`/Workouts?handler=GetExercises&id=${workoutId}`);
+                    const allExercisesResponse = await fetch(`/Workouts?handler=AllExercises`);
+
+
+                    if (workoutExercisesResponse.ok && allExercisesResponse.ok) {
+                        const workoutData = await  workoutExercisesResponse.json();
+                        const allData = await allExercisesResponse.json();
+                        
+
+                        if (workoutData.success && allData.success) {
+                            console.log('Current workout exercises:', workoutData.exercises);
+                            console.log('All available exercises:', allData.exercises);
+
+                            // Store all exercises globally
+                            allExercises = allData.exercises;
+
+                            // Build HTML for existing exercises
+                            let exercisesHtml = '';
+
+                            if (workoutData.exercises.length > 0) {
+                                exercisesHtml = workoutData.exercises.map((e, index) => {
+                                    return createExerciseDropdown(e.exerciseId, `Exercise ${index + 1}`, true, false);
+                                }).join('');
+                                console.log(exercisesHtml);
+                            }
+
+                            // Set the HTML
+                            document.getElementById('exercisesList').innerHTML = exercisesHtml;
+
+                            // Attach listeners to existing selects and remove buttons
+                            document.querySelectorAll('.exercise-select').forEach(select => {
+                                attachExerciseSelectListener(select);
+                            });
+
+                            document.querySelectorAll('.remove-exercise-btn').forEach(btn => {
+                                attachRemoveListener(btn);
+                            });
+
+                            // Add the initial "add exercise" row
+                            //addNewExerciseRow();
+
+                        }
+                    } else {
+                        console.error('Failed to load exercises');
+                        alert('Failed to load exercises. Please try again.');
+                    }
+                } catch (err) {
+                    console.error('Error loading exercises:', err);
+                    alert('Error loading exercises. Please try again.');
+                }
+            });
+        });
+         // Reset when modal is hidden
+        document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function() {
+            workoutToDelete = null;
+        });
+    });
+    
+
+    function showMessage(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+
+        const alert = document.createElement('div');
+        alert.className = `alert ${alertClass} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="fas ${icon} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        const container = document.querySelector('.container');
+        const firstChild = container.querySelector('.row');
+        container.insertBefore(alert, firstChild);
+
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+
+</script>
+
+@{
+    // Add CSRF token for AJAX requests
+}
+<form method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
