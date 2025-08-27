@@ -11,21 +11,40 @@
 
     @foreach (var exercise in Model.Exercises)
     {
+        
         <div class="exercise-card d-none" id="exercise-@exercise.Id">
             <h4>@exercise.Name</h4>
             <div style="display: flex; gap: 10px">
-                <input type="number" id="weight1" class="accept-policy form-control mb-3" placeholder="Weight (kg)"  />
-                <input type="number" id="reps1" class="accept-policy form-control mb-3" placeholder="Reps"  />
+                <div>
+                    <label for="weight1">Weight (kg) Set1</label>
+                    <input type="number" id="weight1" class="accept-policy form-control mb-3" placeholder="@exercise.MaxWeight" />
+                </div>
+                <div>
+                    <label for="reps1">Reps Set1</label>
+                    <input type="number" id="reps1" class="accept-policy form-control mb-3" placeholder="@exercise.MaxReps"  />
+                </div>
             </div>
 
             <div style="display: flex; gap: 10px">
-                <input type="number" id="weight2" class="accept-policy form-control mb-3" placeholder="Weight (kg)" />
-                <input type="number" id="reps2" class="accept-policy form-control mb-3" placeholder="Reps" />
+                <div>
+                    <label for="weight2">Weight (kg) Set2</label>
+                    <input type="number" id="weight2" class="accept-policy form-control mb-3" placeholder="@exercise.MaxWeight" />
+                </div>
+                <div>
+                    <label for="reps2">Reps Set2</label>
+                    <input type="number" id="reps2" class="accept-policy form-control mb-3" placeholder="@exercise.MaxReps" />
+                </div>
             </div>
 
             <div style="display: flex; gap: 10px">
-                <input type="number" id="weight3" class="accept-policy form-control mb-3" placeholder="Weight (kg)"  />
-                <input type="number" id="reps3" class="accept-policy form-control mb-3" placeholder="Reps"  />
+                <div>
+                    <label for="weight3">Weight (kg) Set3</label>
+                    <input type="number" id="weight3" class="accept-policy form-control mb-3" placeholder="@exercise.MaxWeight" />
+                </div>
+                <div>
+                    <label for="reps3">Reps Set3</label>
+                    <input type="number" id="reps3" class="accept-policy form-control mb-3" placeholder="@exercise.MaxReps" />
+                </div>
             </div>
         </div>
 
@@ -105,14 +124,13 @@
             const reps1 = exercise.querySelector('#reps1').value;
             const reps2 = exercise.querySelector('#reps2').value;
             const reps3 = exercise.querySelector('#reps3').value;
-
             if (weight1 || reps1 || weight2 || reps2 || weight3 || reps3) {
                 progressData.push({
                     workoutId: '@Model.WorkoutId',
                     exerciseId: exerciseId,
-                    data: {weight1: weight1, reps1: reps1,
-                           weight2: weight2, reps2: reps2,
-                           weight3: weight3, reps3: reps3}
+                    data: {weight1: weight1 == "" ? 0 : weight1, reps1: reps1 == "" ? 0 : reps1,
+                           weight2: weight2 == "" ? 0 : weight2, reps2: reps2 == "" ? 0 : reps2,
+                           weight3: weight3 == "" ? 0 : weight3, reps3: reps3 == "" ? 0 : reps3}
                 })
             }
 

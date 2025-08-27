@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace MyWebApp.Pages.Progress
 {
@@ -98,43 +100,68 @@ namespace MyWebApp.Pages.Progress
                 Console.WriteLine($"Workout progress {workoutProgId} not found!");
                 return NotFound();
             }
+            //var test = _context.ExerciseProgresses
+            //    .OrderBy(e => e.Id)
+            //    .LastOrDefault(e => e.ExerciseId == progressData[0].ExerciseId);
+            //Console.WriteLine($"QUERY: ------{test.Id}");
 
-
-            // Remove old
-            _context.ExerciseProgresses.RemoveRange(workoutProg.ExerciseProgresses);
-            Console.WriteLine("Removed old exercises");
 
             // Add new
             foreach (var progress in progressData)
             {
-                var data = progress.data;
-                workoutProg.ExerciseProgresses.Add(new ExerciseProgress
+                var exercise = await _context.Exercises.FindAsync(progress.ExerciseId);
+                if (exercise == null)
                 {
-                    WorkoutProgId = workoutProgId,
-                    ExerciseId = progress.ExerciseId,
-                    Set = 1,
-                    Reps = data.reps1,
-                    Weight = data.weight1
-                });
-                workoutProg.ExerciseProgresses.Add(new ExerciseProgress
-                {
-                    WorkoutProgId = workoutProgId,
-                    ExerciseId = progress.ExerciseId,
-                    Set = 2,
-                    Reps = data.reps2,
-                    Weight = data.weight2
-                });
-                workoutProg.ExerciseProgresses.Add(new ExerciseProgress
-                {
-                    WorkoutProgId = workoutProgId,
-                    ExerciseId = progress.ExerciseId,
-                    Set = 3,
-                    Reps = data.reps3,
-                    Weight = data.weight3
-                });
+                    return BadRequest($"Exercise with ID {progress.ExerciseId} not found");
+                }
 
-  
-            };
+                var existingProgresses = _context.ExerciseProgresses.Where(ep => ep.WorkoutProgId == workoutProgId && ep.ExerciseId == progress.ExerciseId);
+
+                var data = progress.data;
+                var set1 = existingProgresses.FirstOrDefault(ep => ep.Set == 1);
+                if (set1 != null)
+                {
+                    set1.Reps = data.reps1;
+                    set1.Weight = data.weight1;
+                    _context.ExerciseProgresses.Update(set1);
+                }
+                if (progress.data.weight1 > exercise.MaxWeight || (progress.data.weight1 == exercise.MaxWeight && progress.data.reps1 > exercise.MaxReps))
+                {
+                    exercise.MaxWeight = progress.data.weight1;
+                    exercise.MaxReps = progress.data.reps1;
+                }
+
+                var set2 = existingProgresses.FirstOrDefault(ep => ep.Set == 2);
+                if (set2 != null)
+                {
+                    set2.Reps = data.reps2;
+                    set2.Weight = data.weight2;
+                    _context.ExerciseProgresses.Update(set2);
+                }
+                if (progress.data.weight2 > exercise.MaxWeight || (progress.data.weight2 == exercise.MaxWeight && progress.data.reps2 > exercise.MaxReps))
+                {
+                    exercise.MaxWeight = progress.data.weight2;
+                    exercise.MaxReps = progress.data.reps2;
+                }
+
+
+                var set3 = existingProgresses.FirstOrDefault(ep => ep.Set == 3);
+                if (set3 != null)
+                {
+                    set3.Reps = data.reps3;
+                    set3.Weight = data.weight3;
+                    _context.ExerciseProgresses.Update(set3);
+                }
+                if (progress.data.weight3 > exercise.MaxWeight || (progress.data.weight3 == exercise.MaxWeight && progress.data.reps3 > exercise.MaxReps))
+                {
+                    exercise.MaxWeight = progress.data.weight3;
+                    exercise.MaxReps = progress.data.reps3;
+                }
+
+                _context.Exercises.Update(exercise);
+
+            }
+            ;
             await _context.SaveChangesAsync();
             Console.WriteLine("Saved changes");
 
