@@ -79,7 +79,7 @@ namespace MyWebApp.Pages.Progress
                 {
                     WorkoutProgId = workoutProg.Id,
                     ExerciseId = progress.ExerciseId,
-                    Set = 1,
+                    Set = 2,
                     Reps = progress.data.reps2,
                     Weight = progress.data.weight2
                 };
@@ -93,7 +93,7 @@ namespace MyWebApp.Pages.Progress
                 {
                     WorkoutProgId = workoutProg.Id,
                     ExerciseId = progress.ExerciseId,
-                    Set = 1,
+                    Set = 3,
                     Reps = progress.data.reps3,
                     Weight = progress.data.weight3
                 };

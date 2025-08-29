@@ -22,7 +22,6 @@ namespace MyWebApp.Pages.Workouts
             Workouts = await _context.Workouts
                 .Include(w => w.WorkoutExercises)
                     .ThenInclude(we => we.Exercise)
-                .OrderBy(w => w.Title)
                 .ToListAsync();
         }
 

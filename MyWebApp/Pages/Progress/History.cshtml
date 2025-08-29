@@ -213,21 +213,39 @@
                 <h4>${exerciseName}</h4>
                 <p>Set 1</p>
                 <div style="display: flex; gap: 10px">
-                    <input type="number" id="weight1-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Weight (kg)" value=${weight1} />
-                    <input type="number" id="reps1-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Reps" value=${reps1} />
+                    <div>
+                        <label for="weight1-${exerciseId}">Weight (kg)</label>
+                        <input type="number" id="weight1-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Weight (kg)" value=${weight1} />
+                    </div>
+                    <div>
+                        <label for="reps1">Reps</label>
+                        <input type="number" id="reps1-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Reps" value=${reps1} />
+                    </div>
                 </div>
 
                 <p>Set 2</p>
                 <div style="display: flex; gap: 10px">
-                    <input type="number" id="weight2-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Weight (kg)" value=${weight2} />
-                    <input type="number" id="reps2-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Reps" value=${reps2} />
+                    <div>
+                        <label for="weight2-${exerciseId}">Weight (kg)</label>
+                        <input type="number" id="weight2-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Weight (kg)" value=${weight2} />
+                    </div>
+                    <div>
+                        <label for="reps2">Reps</label>
+                        <input type="number" id="reps2-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Reps" value=${reps2} />
+                    </div>
                 </div>
 
 
                 <p>Set 3</p>
                 <div style="display: flex; gap: 10px">
-                    <input type="number" id="weight3-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Weight (kg)" value=${weight3} />
-                    <input type="number" id="reps3-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Reps" value=${reps3} />
+                    <div>
+                        <label for="weight3-${exerciseId}">Weight (kg)</label>
+                        <input type="number" id="weight3-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Weight (kg)" value=${weight3} />
+                    </div>
+                    <div>
+                        <label for="reps3">Reps</label>
+                        <input type="number" id="reps3-${exerciseId}" class="accept-policy form-control mb-3" placeholder="Reps" value=${reps3} />
+                    </div>
                 </div>
             </div>`
         }
@@ -376,20 +394,17 @@
             const weight3 = card.querySelector(`#weight3-${exerciseId}`).value;
             const reps3   = card.querySelector(`#reps3-${exerciseId}`).value;
 
-            // only push if at least one value was filled
-            if (weight1 || reps1 || weight2 || reps2 || weight3 || reps3) {
-                progressData.push({
-                    exerciseId: parseInt(exerciseId),
-                    data: {
-                        weight1: parseFloat(weight1) || 0,
-                        reps1: parseInt(reps1) || 0,
-                        weight2: parseFloat(weight2) || 0,
-                        reps2: parseInt(reps2) || 0,
-                        weight3: parseFloat(weight3) || 0,
-                        reps3: parseInt(reps3) || 0
-                    }
-                });
-            }
+            progressData.push({
+                exerciseId: parseInt(exerciseId),
+                data: {
+                    weight1: parseFloat(weight1) || 0,
+                    reps1: parseInt(reps1) || 0,
+                    weight2: parseFloat(weight2) || 0,
+                    reps2: parseInt(reps2) || 0,
+                    weight3: parseFloat(weight3) || 0,
+                    reps3: parseInt(reps3) || 0
+                }
+            });
         });
 
         return progressData;

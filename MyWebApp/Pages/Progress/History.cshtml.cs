@@ -31,7 +31,6 @@ namespace MyWebApp.Pages.Progress
 
 
         // AJAX endpoint for updating exercises
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnGetGetProgExercisesAsync(int id)
         {
             Console.WriteLine("getprogex");
@@ -49,7 +48,7 @@ namespace MyWebApp.Pages.Progress
                     return NotFound("Workout not found");
                 }
                 var exercisesProg = await _context.ExerciseProgresses
-                    //.Include(ep => ep.Exercise)
+                    .Include(ep => ep.Exercise)
                     .Where(ep => ep.WorkoutProgId == id)
                     .GroupBy(ep => new { ep.ExerciseId, ep.Exercise.Name})
                     .Select(g => new
@@ -64,7 +63,7 @@ namespace MyWebApp.Pages.Progress
                         
                     })
                     .ToListAsync();
-                Console.WriteLine(exercisesProg.Count);
+               
                 return new JsonResult(new { success = true, exercisesProg });
                 //return new JsonResult(new { success = true, message = "Exercise updated successfully" });
             }
@@ -123,7 +122,6 @@ namespace MyWebApp.Pages.Progress
                 {
                     set1.Reps = data.reps1;
                     set1.Weight = data.weight1;
-                    _context.ExerciseProgresses.Update(set1);
                 }
                 if (progress.data.weight1 > exercise.MaxWeight || (progress.data.weight1 == exercise.MaxWeight && progress.data.reps1 > exercise.MaxReps))
                 {
@@ -136,7 +134,6 @@ namespace MyWebApp.Pages.Progress
                 {
                     set2.Reps = data.reps2;
                     set2.Weight = data.weight2;
-                    _context.ExerciseProgresses.Update(set2);
                 }
                 if (progress.data.weight2 > exercise.MaxWeight || (progress.data.weight2 == exercise.MaxWeight && progress.data.reps2 > exercise.MaxReps))
                 {
@@ -150,7 +147,6 @@ namespace MyWebApp.Pages.Progress
                 {
                     set3.Reps = data.reps3;
                     set3.Weight = data.weight3;
-                    _context.ExerciseProgresses.Update(set3);
                 }
                 if (progress.data.weight3 > exercise.MaxWeight || (progress.data.weight3 == exercise.MaxWeight && progress.data.reps3 > exercise.MaxReps))
                 {
@@ -194,7 +190,7 @@ namespace MyWebApp.Pages.Progress
 
                 await _context.SaveChangesAsync();
 
-                return new JsonResult(new { success = true, message = "Exercise updated successfully" });
+                return new JsonResult(new { success = true, message = "Exercise deleted successfully" });
             }
             catch (Exception ex)
             {
