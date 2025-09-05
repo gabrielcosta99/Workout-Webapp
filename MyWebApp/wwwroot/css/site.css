@@ -21,3 +21,36 @@ body {
   margin-bottom: 60px;
 }
 
+.workout-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+    .workout-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+.exercise-card {
+    transition: all 0.3s ease;
+    border: 2px solid #e9ecef;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+   
+
+.form-check-label {
+    cursor: pointer;
+}
+
+.exercise-checkbox {
+    transform: scale(1.2);
+}
+
+.card-header {
+    background-color: gray;
+    border-radius: 0.75rem 0.75rem 0 0;
+/*    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.15);*/
+}
+

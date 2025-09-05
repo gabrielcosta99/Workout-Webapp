@@ -14,6 +14,8 @@ namespace MyWebApp.Pages.Progress
         [BindProperty]
         public int WorkoutId { get; set; }
 
+        public string WorkoutTitle { get; set; }
+
         private readonly DBContext _context;
         
         public WorkoutProgressModel(DBContext context)
@@ -29,6 +31,11 @@ namespace MyWebApp.Pages.Progress
                 .Include(e => e.WorkoutExercises)
                 .Where(e => e.WorkoutExercises.Any(we => we.WorkoutId == id))
                 .ToList();
+
+            WorkoutTitle = _context.Workouts
+                .Where(w => w.Id == id)
+                .Select(w => w.Title)
+                .FirstOrDefault() ?? "";
 
         }
 

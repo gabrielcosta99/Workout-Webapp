@@ -1,0 +1,170 @@
+﻿@page
+@model MyWebApp.Pages.Progress.ViewWorkoutProgressModel
+@{
+}
+@using System.Text.Json
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-dumbbell me-2 text-primary" aria-hidden="true"></i>
+                    Progress of Workout: @Model.WorkoutTitle
+                </h1>
+            </div>
+
+            @if (TempData["SuccessMessage"] is string successMessage)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2" aria-hidden="true"></i>@successMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (Model.Progress?.Any() ?? false)
+            {
+                <div class="row g-4">
+                    @foreach (var exerciseGroup in Model.Progress)
+                    {
+                        var exerciseName = exerciseGroup.Key;
+                        var chartId = "chart-" + exerciseName.Replace(" ", "-");
+
+                        <div class="col-12 mt-4">
+                            <h2>@exerciseName Progress Chart</h2>
+                            <canvas id="@chartId"></canvas>
+                        </div>
+
+                        @foreach (var progress in exerciseGroup.Value)
+                        {
+                            <div class="col-sm-6 col-lg-4">
+                                <div class="card h-100 exercise-card">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0">@progress.ExerciseName</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-3">
+                                            <li>
+                                                <i class="fas fa-check text-success me-1"></i>
+                                                <span>
+                                                    Set: @progress.Set; Reps: @progress.Reps; Weight: @progress.Weight kg
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-dumbbell fa-3x text-muted mb-3" aria-hidden="true"></i>
+                    <h3 class="text-muted">No progress yet</h3>
+                    <button class ="btn btn-primary btn-lg"
+                            onclick="window.location.href='@Url.Page("/Progress/WorkoutProgress", new { id = @Model.WorkoutId })'">
+                        Create your first progress for the workout: @Model.WorkoutTitle
+                    </button>
+                    @* <a asp-page="/Progress/WorkoutProgress" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Create your first progress for the workout: @Model.WorkoutTitle
+                    </a> *@
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @if (Model.Progress?.Any() ?? false)
+    {
+        <script>
+            // Convert the C# model data into a JavaScript array of grouped exercises
+            var groupedProgressData = @Html.Raw(JsonSerializer.Serialize(Model.Progress));
+
+            // Loop through each exercise group and create a chart
+            for (const exerciseName in groupedProgressData) {
+                if (Object.hasOwnProperty.call(groupedProgressData, exerciseName)) {
+                    const progressData = groupedProgressData[exerciseName];
+                    const chartId = "chart-" + exerciseName.replace(/\s/g, "-");
+
+                    // Prepare the labels and data for the chart
+                    // Use Date or just a simple index if dates are not available
+                    const labels = []
+                    progressData.forEach((p, index) => {
+                        if(index%3 == 0)
+                            labels.push(`Day ${index/3+1}`);
+                    });
+                    var medianWeight = 0;
+                    var weights = []
+                    progressData.forEach((p, index) => {
+                        medianWeight += p.Weight
+                        if((index+1)%3 == 0){
+                            weights.push(medianWeight/3);
+                            medianWeight = 0;
+                        }
+                            
+                    });
+                    console.log(labels)
+                    console.log(weights);
+
+                    const ctx = document.getElementById(chartId).getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Weight (kg)',
+                                data: weights,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2,
+                                fill: true,
+                                @* tension: 0.4 *@
+                                tension: 0 
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Weight (kg)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Days'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: `Weight Progress for ${exerciseName}`
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const progressItems = [progressData[context.dataIndex*3],progressData[context.dataIndex*3+1],progressData[context.dataIndex*3+2]];
+                                            return `Weight: ${(progressItems[0].Weight + progressItems[1].Weight + progressItems[2].Weight)/3} kg`;
+                                        },
+                                        afterLabel: function(context) {
+                                            const progressItem = progressData[context.dataIndex];
+                                            return `Reps: ${progressItem.Reps}\nSet: ${progressItem.Set}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        </script>
+    }
+}

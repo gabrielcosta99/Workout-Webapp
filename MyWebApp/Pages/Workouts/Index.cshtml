@@ -66,6 +66,10 @@
                                             data-bs-target="#quickEditModal">
                                         <i class="fas fa-edit me-1"></i>Quick Edit
                                     </button>
+                                    <button class="btn btn-outline-secondary progress-btn"
+                                            onclick="window.location.href='@Url.Page("/Progress/ViewWorkoutProgress",new {id= workout.Id})'">
+                                            View Progress
+                                    </button>
                                     <button class="btn btn-outline-danger delete-btn"
                                             data-workout-id="@workout.Id"
                                             data-workout-title="@workout.Title"
@@ -144,17 +148,6 @@
 
 
 
-<style>
-    .workout-card {
-        transition: all 0.3s ease;
-        border: 1px solid #e9ecef;
-    }
-
-        .workout-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-</style>
 
 <script>
 

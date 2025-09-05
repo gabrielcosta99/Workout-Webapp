@@ -4,16 +4,16 @@
     ViewData["Title"] = "Workout Progress";
 }
 
-<h2>Workout Progress</h2>
 
 @if (Model.Exercises.Any())
 {
+    <h2>Workout: @Model.WorkoutTitle </h2>
 
     @foreach (var exercise in Model.Exercises)
     {
-        
+        <br />
         <div class="exercise-card d-none" id="exercise-@exercise.Id">
-            <h4>@exercise.Name</h4>
+            <h4>Exercise: @exercise.Name</h4>
             <div style="display: flex; gap: 10px">
                 <div>
                     <label for="weight1">Weight (kg) Set1</label>

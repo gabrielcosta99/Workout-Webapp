@@ -39,25 +39,13 @@
                     @foreach (var workout in Model.Workouts)
                     {
                         <div class="col-md-6 col-lg-4 mb-4">
-                            @* <a href="/Workouts/Create"> *@
                             <div class="card h-100 workout-card"
                                  onclick="window.location.href='@Url.Page("/Progress/WorkoutProgress", new {id = workout.Id})'"
                                 style="cursor: pointer;">
                                 <div class="card-header bg-light">
                                     <h5 class="card-title mb-0">@workout.Title</h5>
                                 </div>
-                                @* <div class="btn-group w-100" role="group">
-
-                                    <button class="btn btn-outline-primary quick-edit-btn"
-                                            data-workout-id="@workout.Id"
-                                            data-workout-title="@workout.Title"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#quickEditModal">
-                                        <i class="fas fa-edit me-1"></i>Enter progress
-                                    </button>
-                                </div> *@
                             </div>
-                            @* </a> *@
                         </div>
                     }
                 </div>
@@ -79,7 +67,7 @@
 
 
 
-<style>
+@* <style>
     .workout-card {
         transition: all 0.3s ease;
         border: 1px solid #e9ecef;
@@ -89,7 +77,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             transform: translateY(-2px);
         }
-</style>
+</style> *@
 
 @{
     // Add CSRF token for AJAX requests

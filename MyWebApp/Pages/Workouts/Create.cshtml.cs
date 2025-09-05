@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
@@ -17,6 +18,8 @@ namespace MyWebApp.Pages.Workouts
         }
 
         [BindProperty]
+        public List<string> SelectedIds { get; set; }
+        public List<SelectListItem> ExerciseOptions { get; set; }
         public CreateWorkoutViewModel WorkoutViewModel { get; set; } = new CreateWorkoutViewModel();
 
         public async Task<IActionResult> OnGetAsync()
@@ -83,6 +86,18 @@ namespace MyWebApp.Pages.Workouts
                 .ToListAsync();
 
             WorkoutViewModel.AvailableExercises = exercises;
+            ExerciseOptions = new List<SelectListItem>();
+
+            for (int i = 0; i< exercises.Count; i++)
+            {
+                ExerciseOptions.Add(new SelectListItem
+                {
+                    Value = exercises[i].Id.ToString(),
+                    Text = $"{exercises[i].Name}",
+                    Selected = exercises[i].IsSelected
+                });
+
+            }
         }
     }
 }
